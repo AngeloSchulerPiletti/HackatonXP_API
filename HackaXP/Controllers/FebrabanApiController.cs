@@ -10,15 +10,7 @@ namespace HackaXP.Controllers
     [ApiVersion("1")]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
-    public class OpenFinanceController : ControllerBase
+    public class FebrabanApiController : ControllerBase
     {
-
-
-        [HttpGet]
-        [Route("demo")]
-        public IActionResult Demo()
-        {
-            return Ok("Our api is working!");
-        }
     }
 }
