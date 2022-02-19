@@ -46,9 +46,29 @@
         "net5.0": {
           "targetAlias": "net5.0",
           "dependencies": {
+            "Evolve": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
             "Microsoft.AspNetCore.Mvc.Versioning": {
               "target": "Package",
               "version": "[5.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[5.0.14, )"
+            },
+            "MySql.Data": {
+              "target": "Package",
+              "version": "[8.0.28, )"
+            },
+            "Pomelo.EntityFrameworkCore.MySql": {
+              "target": "Package",
+              "version": "[5.0.4, )"
+            },
+            "Serilog": {
+              "target": "Package",
+              "version": "[2.10.0, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",

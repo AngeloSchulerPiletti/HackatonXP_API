@@ -12,6 +12,8 @@ namespace HackaXP.Controllers
     [ApiController]
     public class OpenFinanceController : ControllerBase
     {
+
+
         [HttpGet]
         [Route("demo")]
         public IActionResult Demo()
