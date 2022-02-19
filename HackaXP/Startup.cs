@@ -27,6 +27,7 @@ namespace HackaXP
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddApiVersioning();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
