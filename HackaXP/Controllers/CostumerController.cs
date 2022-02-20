@@ -46,6 +46,7 @@ namespace HackaXP.Controllers
         public IActionResult ApproveOpenFinance([FromBody] NewCostumer newCostumer)
         {
             if (_costumerRepository.CheckIfCostumerExists(newCostumer.Name)) return BadRequest(new ActionsMessageResult("OpenFinance já está habilitado para este usuário"));
+            //Verifica se o usuário existe na api da xp
 
             ActionsMessageResult result = _costumerRepository.AddCostumer(newCostumer);
             return result.IsError ? BadRequest(result) : Ok(result);

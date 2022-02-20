@@ -1,5 +1,7 @@
-﻿using HackaXP.Data.DTO.OpenFinance;
+﻿using HackaXP.Data.DTO.Engine;
+using HackaXP.Data.DTO.OpenFinance;
 using HackaXP.Data.VO.Engine;
+using HackaXP.Engine.Implementation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,122 +12,131 @@ namespace HackaXP.Business.Implementation
 {
     public class EngineFinancialHealthyMeasure : IEngineFinancialHealthyMeasure
     {
+        public Operations OperationsBills12Months = new();
+        public Operations OperationsPix12Months = new();
+        public Operations OperationsCreditCard12Months = new();
+        public Operations OperationsCreditLine12Months = new();
+        public Operations OperationsChecking12Months = new();
+
+        public float TotalInvestedFixedAssets = 0.00f;
+        public float TotalSavingBalance = 0.00f;
+        public float TotalCheckingBalance = 0.00f;
+        public float TotalInvestedLowRiskFunds = 0.00f;
+        public float TotalInvested = 0.00f;
+
+        public bool UsesInstallments = false;
+
+        public float Salary12Months;
 
         public EngineOwnMeasureVO Calculate(CostumerOpenFinanceData costumerData)
         {
             EngineOwnMeasureVO engineOwnMeasureVO = new();
 
-            List<float> q1DecimalResult = Question1();
-            engineOwnMeasureVO.Scores.Add(new Question(1, q1DecimalResult[0], (int)q1DecimalResult[1]));
+            QuestionResultVO q1Result = Question1();
+            engineOwnMeasureVO.Scores.Add(new Question(1, q1Result.AbsolutePercentualResult, q1Result.TranslatedResult));
+
+            QuestionResultVO q2Result = Question2();
+            engineOwnMeasureVO.Scores.Add(new Question(2, q2Result.AbsolutePercentualResult, q2Result.TranslatedResult));
+
+
 
             return engineOwnMeasureVO;
 
-            List<float> Question1()
+            QuestionResultVO Question1()
             {
                 DateTime OneYearAgo = DateTime.Now.AddDays(-365).Date;
 
-                float totalExpensesCreditCard12Months = 0.00f;
-                float totalExpensesBills12Months = 0.00f;
-                float totalExpensesPix12Months = 0.00f;
-                float totalExpensesTransactions12Months = 0.00f;
-                float totalExpensesCreditLines12Months = 0.00f;
+                Salary12Months = costumerData.Salary * 13;
 
-                float totalIncomePix12Months = 0.00f;
-                float totalIncomeTransactions12Months = 0.00f;
-                float totalIncomeCreditCard12Months = 0.00f;
-
-                float salary12Months = costumerData.Salary * 13;
+                float totalExpenses = 0.00f;
+                float totalIncomes = 0.00f;
                 foreach (Bank bank in costumerData.Banks)
                 {
-                    foreach (Transactions transaction in bank.CreditCard.Transactions)
-                    {
-                        if (transaction.Date.Date > OneYearAgo)
-                        {
-                            if (!transaction.isEntry) totalExpensesCreditCard12Months += transaction.Value;
-                            else totalIncomeCreditCard12Months += transaction.Value;
-                        }
-                    }
+                    Operations operationsCreditCard = BaseMeasures.CalculateCreditCardTransactionInBank12Months(bank);
+                    OperationsCreditCard12Months.Expenses += operationsCreditCard.Expenses;
+                    OperationsCreditCard12Months.Incomes += operationsCreditCard.Incomes;
 
-                    foreach (Bill bill in bank.Bills)
-                    {
-                        if (bill.PaidDate.Date > OneYearAgo) totalExpensesBills12Months += bill.Value;
-                    }
+                    Operations operationsBills = BaseMeasures.CalculateBillsPaymentInBank12Months(bank);
+                    OperationsBills12Months.Expenses += operationsBills.Expenses;
+                    OperationsBills12Months.Incomes += operationsBills.Incomes;
 
-                    foreach (PixTransaction pixTransaction in bank.PixHistory)
-                    {
-                        if (!(pixTransaction.To.Cpf == costumerData.Cpf && pixTransaction.From.Cpf == costumerData.Cpf) && (pixTransaction.Date.Date > OneYearAgo))
-                        {
-                            if (pixTransaction.From.Cpf == costumerData.Cpf) totalExpensesPix12Months += pixTransaction.Value;
-                            else totalIncomePix12Months += pixTransaction.Value;
+                    Operations operationsChecking = BaseMeasures.CalculateCheckingTransactionsInBank12Months(bank);
+                    OperationsChecking12Months.Expenses += operationsBills.Expenses;
+                    OperationsChecking12Months.Incomes += operationsBills.Incomes;
 
-                        }
-                    }
+                    Operations operationsPix = BaseMeasures.CalculatePixTransactionInBank12Months(bank, costumerData.Cpf);
+                    OperationsPix12Months.Expenses += operationsBills.Expenses;
+                    OperationsPix12Months.Incomes += operationsBills.Incomes;
 
-                    foreach (Transactions transaction in bank.Checking.Transactions)
-                    {
-                        if (transaction.Date.Date > OneYearAgo)
-                        {
-                            if (!transaction.isEntry) totalExpensesTransactions12Months += transaction.Value;
-                            else totalIncomeTransactions12Months += transaction.Value;
-                        }
-                    }
+                    Operations operationsCreditLine = BaseMeasures.CalculateCreditLineExpenseInBank12Months(bank);
+                    OperationsCreditLine12Months.Expenses += operationsBills.Expenses;
+                    OperationsCreditLine12Months.Incomes += operationsBills.Incomes;
 
-                    foreach (CreditLine creditLine in bank.ConsumedCreditLines)
-                    {
-                        if ((creditLine.EndDate > OneYearAgo) && (creditLine.StartDate < DateTime.Now))
-                        {
-                            DateTime countDateStart =
-                                (creditLine.StartDate.Date >= OneYearAgo) ?
-                                creditLine.StartDate : OneYearAgo;
+                    totalExpenses +=
+                        (operationsBills.Expenses +
+                        operationsChecking.Expenses +
+                        operationsCreditCard.Expenses +
+                        operationsPix.Expenses +
+                        operationsCreditLine.Expenses);
 
-                            //DateTime countDateEnd =
-                            //    DateTime.Compare(creditLine.EndDate.Date, DateTime.Now.Date) <= 0 ?
-                            //    DateTime.Now.Date : creditLine.EndDate;
-
-                            TimeSpan creditDateRange = creditLine.EndDate.Subtract(countDateStart);
-                            double creditDateRangeChunk = (creditDateRange.TotalMilliseconds / (creditLine.Installments - 1));
-
-                            double totalExpense = 0;
-
-                            TimeSpan paidDateRange = DateTime.Now.Date.Subtract(countDateStart);
-                            int paidDateRangeInMonths = (int)Math.Round(paidDateRange.TotalDays / 30.4);
-
-                            if (creditLine.EndDate.Date <= DateTime.Now.Date)
-                            {
-                                double totalTax = Math.Pow((1 + creditLine.Tax), paidDateRangeInMonths);
-                                totalExpense = creditLine.Value * totalTax;
-                            }
-                            else
-                            {
-                                // Ao invés de paidInstallments, eleva-se à quantidade de meses correspondente
-                                int paidInstallments = (int)Math.Round(paidDateRange.TotalMilliseconds / creditDateRangeChunk);
-
-                                double totalTax = Math.Pow((1 + creditLine.Tax), paidDateRangeInMonths);
-                                totalExpense = ((creditLine.Value / creditLine.Installments) * paidInstallments) * totalTax;
-                            }
-                            totalExpensesCreditLines12Months += (float)Math.Round(totalExpense, 2);
-                        }
-                    }
+                    totalIncomes +=
+                        (operationsBills.Incomes +
+                        operationsChecking.Incomes +
+                        operationsCreditCard.Incomes +
+                        operationsPix.Incomes +
+                        operationsCreditLine.Incomes);
                 }
-                float totalExpensesIn12Months =
-                    totalExpensesBills12Months +
-                    totalExpensesCreditCard12Months +
-                    totalExpensesCreditLines12Months +
-                    totalExpensesPix12Months +
-                    totalExpensesTransactions12Months;
+                totalIncomes += Salary12Months;
 
-                float totalIncomesIn12Months =
-                    totalIncomeCreditCard12Months +
-                    totalIncomePix12Months +
-                    totalIncomeTransactions12Months;
+                float percentualResult = (totalExpenses / totalIncomes);
 
-                float percentualResult = (totalExpensesIn12Months / totalIncomesIn12Months);
-
-                float translatedResult;
+                int translatedResult;
                 if (percentualResult > 1) translatedResult = 1;
-                else translatedResult = (float)Math.Round(percentualResult * 5);
+                else translatedResult = (int)Math.Round(percentualResult * 5);
 
-                return new List<float>() { percentualResult, translatedResult };
+                return new QuestionResultVO(translatedResult, percentualResult);
+            }
+
+            QuestionResultVO Question2()
+            {
+                foreach (Bank bank in costumerData.Banks)
+                {
+                    TotalInvestedFixedAssets += BaseMeasures.CalculateTotalInvestedInFixedAssetsInBank12Months(bank);
+                    TotalInvestedLowRiskFunds += BaseMeasures.CalculateTotalInvestedFundsInBank12Months(bank, 0, 40);
+
+                    TotalSavingBalance += bank.Saving.Balance;
+                    TotalCheckingBalance += bank.Checking.Balance;
+
+                    if (bank.CreditCard.InstallmentsUsage) UsesInstallments = true;
+                }
+
+                int translatedResult = 5;
+
+                float quocientMonthlyExpensesIncomes = (OperationsBills12Months.Expenses + OperationsPix12Months.Expenses) / (Salary12Months + OperationsPix12Months.Incomes);
+                float quocientInvestimentsBills = OperationsBills12Months.Expenses / (TotalInvestedFixedAssets + TotalSavingBalance + TotalInvestedLowRiskFunds);
+                float quocientCheckingBalanceCreditLines = OperationsCreditLine12Months.Expenses / TotalCheckingBalance;
+
+                float resultQuocient = ((quocientCheckingBalanceCreditLines + quocientInvestimentsBills + (quocientMonthlyExpensesIncomes * 2)) / 4);
+
+                if (UsesInstallments)
+                {
+                    resultQuocient += 0.17f;
+                }
+                if (resultQuocient < 1)
+                {
+                    translatedResult = (int)Math.Round(resultQuocient * 5);
+                }
+
+                return new QuestionResultVO(translatedResult, resultQuocient);
+            }
+
+            QuestionResultVO Question3()
+            {
+                foreach (Bank bank in costumerData.Banks)
+                {
+                    TotalInvested += BaseMeasures.CalculateTotalInvestedInBank12Months(bank);
+                }
+                float quocientInvestimentsSalary = (OperationsCreditLine12Months.Expenses + ) /(TotalInvested + Salary12Months + TotalCheckingBalance);
             }
         }
 
