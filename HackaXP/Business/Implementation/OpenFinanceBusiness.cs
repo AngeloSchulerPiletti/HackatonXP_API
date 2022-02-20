@@ -1,4 +1,5 @@
-﻿using HackaXP.Data.DTO.OpenFinance;
+﻿using HackaXP.Data.DTO.Febraban;
+using HackaXP.Data.DTO.OpenFinance;
 using HackaXP.Data.VO.Engine;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -45,23 +46,39 @@ namespace HackaXP.Business.Implementation
             EngineOwnMeasureVO answers = _engine.Calculate(costumerData); // Retorna uma resposta numérica percetual estrturuada para cada pergunta
             FebrabanFormVO febrabanFormVO = _engine.TranslateToFebrabanJson(answers); // Engine Traduz a resposta numérica percentual para a estrutura de resposta esperada pelo servidor
             // Salva a resposta numérica percetual estrturuada para o usuário em questão
-            object febrabanAnswer = SendQuestionaryToFebraban(febrabanFormVO).Result; // Aqui mesmo envia a resposta para a Febraban
+            FebrabanResponseData febrabanAnswer = SendQuestionaryToFebraban(febrabanFormVO).Result; // Envia a resposta traduzida para a Febraban
+
+            object febrabanFinancialHealthyAnswer = GetFormResultFromFebraban(febrabanAnswer).Result; // Pega a resposta da Febraban
             // Salva a resposta da Febraban
             // Retorna a resposta da Febraban para o Front
-            return febrabanAnswer;
+            return febrabanFinancialHealthyAnswer;
         }
 
-        private async Task<object> SendQuestionaryToFebraban(FebrabanFormVO febrabanFormVO)
+        private async Task<FebrabanResponseData> SendQuestionaryToFebraban(FebrabanFormVO febrabanFormVO)
         {
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"{_febrabanBaseUrl}/integration/index_value");
             string febrabanFormJson = JsonConvert.SerializeObject(febrabanFormVO, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() });
             request.Content = new StringContent(febrabanFormJson);
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-            HttpResponseMessage response = await _accessClient.SendAsync(request);
+            HttpResponseMessage response = await _apiClient.SendAsync(request);
 
             var responseBody = response.Content.ReadAsStringAsync();
+            FebrabanResponseData result = JsonConvert.DeserializeObject<FebrabanResponseData>(responseBody.Result);
 
+            return result;
+
+        }
+
+        private async Task<object> GetFormResultFromFebraban(FebrabanResponseData febrabanResponseData)
+        {
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"{_febrabanBaseUrl}/integration/get_calculated_index/{febrabanResponseData.Data}");
+            request.Headers.Host = "api-indice.febraban.org.br";
+            request.Headers.Add("USER-TOKEN", febrabanResponseData.UserToken);
+
+            HttpResponseMessage response = await _apiClient.SendAsync(request);
+
+            var responseBody = response.Content.ReadAsStringAsync();
             object result = JsonConvert.DeserializeObject(responseBody.Result);
 
             return result;
