@@ -1,7 +1,10 @@
 ﻿using HackaXP.Business;
 using HackaXP.Business.Implementation;
 using HackaXP.Data.DTO;
+using HackaXP.Data.DTO.Febraban;
 using HackaXP.Data.DTO.OpenFinance;
+using HackaXP.Data.VO.Engine;
+using HackaXP.Models;
 using HackaXP.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -36,9 +39,18 @@ namespace HackaXP.Controllers
 
             CostumerOpenFinanceData costumerData = _openFinanceBusiness.GetCostumer(costumerName).Result;
 
-            var answer = _openFinanceBusiness.CalculateFinancialHealthy(costumerData);
+            FebrabanFormVO febrabanFormVO = _openFinanceBusiness.CalculateFinancialHealthy(costumerData);
 
-            return Ok(answer);
+            FebrabanResponseData febrabanAnswer = _openFinanceBusiness.SendQuestionaryToFebraban(febrabanFormVO).Result;
+            if (!febrabanAnswer.Success) return BadRequest("Houve um erro ao enviar os dados para o serviço da Febraban");
+
+            FebrabanCompleteResultData febrabanFinancialHealthyAnswer = _openFinanceBusiness.GetFormResultFromFebraban(febrabanAnswer).Result;
+            if (!febrabanFinancialHealthyAnswer.Success) return BadRequest("Houve um erro ao obter o resultado da sua saúde financeira com o serviço da Febraban");
+
+            Costumer costumer = _costumerRepository.GetCostumerData(costumerName);
+            _costumerRepository.SaveFinancialHealthyConsult(febrabanFinancialHealthyAnswer, costumer.Id);
+
+            return Ok(febrabanFinancialHealthyAnswer);
         }
 
         [HttpPost]

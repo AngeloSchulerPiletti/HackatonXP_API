@@ -17,6 +17,7 @@ namespace HackaXP.Models
             FinancialKnowledgeScore = financialKnowledgeScore;
             FinancialSecurityScore = financialSecurityScore;
             IndexScore = indexScore;
+            ConsultDate = DateTime.Now;
         }
 
         [Key]
@@ -24,14 +25,7 @@ namespace HackaXP.Models
         public long Id { get; set; }
 
         [Column("consult_date")]
-        public DateTime ConsultDate
-        {
-            get => ConsultDate;
-            set
-            {
-                ConsultDate = DateTime.Now;
-            }
-        }
+        public DateTime ConsultDate { get; set; }
 
         [Column("costumer_id")]
         public long CostumerId { get; set; }

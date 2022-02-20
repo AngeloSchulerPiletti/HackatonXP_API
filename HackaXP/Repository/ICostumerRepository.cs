@@ -1,4 +1,5 @@
 ﻿using HackaXP.Data.DTO;
+using HackaXP.Data.DTO.Febraban;
 using HackaXP.Models;
 using System;
 using System.Collections.Generic;
@@ -9,11 +10,14 @@ namespace HackaXP.Repository
 {
     public interface ICostumerRepository
     {
-        ActionsMessageResult UpdateCostumerAcceptance(CostumerAcceptance acceptanceDto);
-        Costumer GetCostumerData(long costumerId);
-        Costumer GetCostumerData(string costumerName);
+        ActionsMessageResult AddCostumer(NewCostumer newCostumer);
         bool CheckIfCostumerExists(long costumerId);
         bool CheckIfCostumerExists(string costumerName);
-        ActionsMessageResult AddCostumer(NewCostumer newCostumer);
+        Costumer GetCostumerData(long costumerId);
+        Costumer GetCostumerData(string costumerName);
+        FinancialHealthyHistory GetLastFinancialHealthyConsult(int userId);
+        FinancialHealthyHistory GetLastFinancialHealthyConsult(string userName);
+        FinancialHealthyHistory SaveFinancialHealthyConsult(FebrabanCompleteResultData febrabanResponse, long costumerId);
+        ActionsMessageResult UpdateCostumerAcceptance(CostumerAcceptance acceptanceDto);
     }
 }

@@ -1,10 +1,13 @@
 ﻿using backend.Models.Context;
 using HackaXP.Data.DTO;
+using HackaXP.Data.DTO.Febraban;
 using HackaXP.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static HackaXP.Data.DTO.Febraban.FebrabanCompleteResultData;
+using static HackaXP.Data.DTO.Febraban.FebrabanCompleteResultData.DataIn;
 
 namespace HackaXP.Repository.Implementation
 {
@@ -54,6 +57,41 @@ namespace HackaXP.Repository.Implementation
         {
             Costumer costumer = _context.Costumers.FirstOrDefault(c => c.Name == costumerName);
             return costumer;
+        }
+
+        public FinancialHealthyHistory GetLastFinancialHealthyConsult(int userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public FinancialHealthyHistory GetLastFinancialHealthyConsult(string userName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public FinancialHealthyHistory SaveFinancialHealthyConsult(FebrabanCompleteResultData febrabanResponse, long costumerId)
+        {
+            SummaryIn febrabanSummary = febrabanResponse.Data.Summary;
+            FinancialHealthyHistory financialHealthyConsult = new(
+                costumerId, febrabanSummary.FinancialSecurityScore,
+                febrabanSummary.FinancialKnowledgeScore,
+                febrabanSummary.FinancialBehaviorScore,
+                febrabanSummary.FinancialFreedomScore,
+                febrabanSummary.IndexScore);
+
+            try
+            {
+                _context.FinancialHealthyHistorys.Add(financialHealthyConsult);
+                Costumer costumer = _context.Costumers.First(c => c.Id == costumerId);
+                costumer.LastFinancialHealthyHistoryId = financialHealthyConsult.Id;
+                _context.SaveChanges();
+
+                return financialHealthyConsult;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public ActionsMessageResult UpdateCostumerAcceptance(CostumerAcceptance acceptanceDto)
