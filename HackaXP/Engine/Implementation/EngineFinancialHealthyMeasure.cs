@@ -1,6 +1,7 @@
 ﻿using HackaXP.Data.DTO.Engine;
 using HackaXP.Data.DTO.OpenFinance;
 using HackaXP.Data.VO.Engine;
+using HackaXP.Data.VO.Febraban;
 using HackaXP.Engine.Implementation;
 using System;
 using System.Collections.Generic;
@@ -42,25 +43,55 @@ namespace HackaXP.Business.Implementation
             EngineOwnMeasureVO engineOwnMeasureVO = new();
 
             QuestionResultVO q1Result = Question1();
-            engineOwnMeasureVO.Scores.Add(new Question(1, q1Result.AbsolutePercentualResult, q1Result.TranslatedResult));
+            engineOwnMeasureVO.Scores.Add(new Question("s4", q1Result.AbsolutePercentualResult, q1Result.TranslatedResult, 1));
 
             QuestionResultVO q2Result = Question2();
-            engineOwnMeasureVO.Scores.Add(new Question(2, q2Result.AbsolutePercentualResult, q2Result.TranslatedResult));
+            engineOwnMeasureVO.Scores.Add(new Question("s1", q2Result.AbsolutePercentualResult, q2Result.TranslatedResult, 1));
 
             QuestionResultVO q3Result = Question3();
-            engineOwnMeasureVO.Scores.Add(new Question(3, q3Result.AbsolutePercentualResult, q3Result.TranslatedResult));
+            engineOwnMeasureVO.Scores.Add(new Question("s2", q3Result.AbsolutePercentualResult, q3Result.TranslatedResult, 1));
 
             QuestionResultVO q4Result = Question4();
-            engineOwnMeasureVO.Scores.Add(new Question(4, q4Result.AbsolutePercentualResult, q4Result.TranslatedResult));
+            engineOwnMeasureVO.Scores.Add(new Question("s3", q4Result.AbsolutePercentualResult, q4Result.TranslatedResult, 1));
+
 
             QuestionResultVO q5Result = Question5();
-            engineOwnMeasureVO.Scores.Add(new Question(5, q5Result.AbsolutePercentualResult, q5Result.TranslatedResult));
+            engineOwnMeasureVO.Scores.Add(new Question("c1", q5Result.AbsolutePercentualResult, q5Result.TranslatedResult, 2));
 
             QuestionResultVO q6Result = Question6();
-            engineOwnMeasureVO.Scores.Add(new Question(6, q6Result.AbsolutePercentualResult, q6Result.TranslatedResult));
+            engineOwnMeasureVO.Scores.Add(new Question("c2", q6Result.AbsolutePercentualResult, q6Result.TranslatedResult, 2));
 
             QuestionResultVO q7Result = Question7();
-            engineOwnMeasureVO.Scores.Add(new Question(7, q7Result.AbsolutePercentualResult, q7Result.TranslatedResult));
+            engineOwnMeasureVO.Scores.Add(new Question("c3", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 2));
+
+
+            // Mocked data
+            engineOwnMeasureVO.Scores.Add(new Question("at1", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 3));
+
+            engineOwnMeasureVO.Scores.Add(new Question("at2", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 3));
+
+            engineOwnMeasureVO.Scores.Add(new Question("at3", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 3));
+
+
+            engineOwnMeasureVO.Scores.Add(new Question("l1", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 4));
+
+            engineOwnMeasureVO.Scores.Add(new Question("l2", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 4));
+
+
+            engineOwnMeasureVO.Scores.Add(new Question("ap1", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 5));
+
+            engineOwnMeasureVO.Scores.Add(new Question("ap2", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 5));
+
+            engineOwnMeasureVO.Scores.Add(new Question("ap3", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 5));
+
+            // Essa é de selecionar...
+            //engineOwnMeasureVO.SelectableQuestions.Add(new SelectableQuestion(1, "bf3", true));
+            engineOwnMeasureVO.Scores.Add(new Question("bf3", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 6)); // Isso nao serve para nada
+
+            engineOwnMeasureVO.Scores.Add(new Question("bf2", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 6));
+
+            engineOwnMeasureVO.Scores.Add(new Question("bf4", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 6));
+
 
 
 
@@ -251,8 +282,25 @@ namespace HackaXP.Business.Implementation
 
         public FebrabanFormVO TranslateToFebrabanJson(EngineOwnMeasureVO engineOwnMeasureVO)
         {
+            List<FebrabanQuestionData> questionDataList = new List<FebrabanQuestionData>();
+            List<FebrabanQuestionSection> questionsSections = new();
+            questionsSections.Add(new FebrabanQuestionSection(1, questionDataList));
 
+            foreach (Question question in engineOwnMeasureVO.Scores)
+            {
+                FebrabanQuestionData translatedQuestion = new(question.QuestionCode, question.TranslatedScore);
+                questionDataList.Add(translatedQuestion);
+            }
+            for (int i = 0; i < engineOwnMeasureVO.Scores.Count; i++)
+            {
+                if(questionsSections.Last().Id < engineOwnMeasureVO.Scores[i].SectionId)
+                {
+                    questionsSections.Add(new FebrabanQuestionSection(engineOwnMeasureVO.Scores[i].SectionId, /*Preciso ver*/));
+                }
 
+            }
+
+            FebrabanFormVO febrabanFormVO = new(questionsSections);
         }
 
 
