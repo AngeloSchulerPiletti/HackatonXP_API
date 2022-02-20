@@ -1,6 +1,7 @@
 ﻿using HackaXP.Data.DTO.OpenFinance;
 using HackaXP.Data.VO.Engine;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace HackaXP.Business.Implementation
     public class OpenFinanceBusiness : IOpenFinanceBusiness
     {
         private string _baseUrl = "https://openapi.xpi.com.br";
+        private string _febrabanBaseUrl = "https://api-indice.febraban.org.br/api/v1";
         private string _accessToken;
         private HttpClient _apiClient = new HttpClient();
         private HttpClient _accessClient = new HttpClient();
@@ -43,26 +45,26 @@ namespace HackaXP.Business.Implementation
             EngineOwnMeasureVO answers = _engine.Calculate(costumerData); // Retorna uma resposta numérica percetual estrturuada para cada pergunta
             FebrabanFormVO febrabanFormVO = _engine.TranslateToFebrabanJson(answers); // Engine Traduz a resposta numérica percentual para a estrutura de resposta esperada pelo servidor
             // Salva a resposta numérica percetual estrturuada para o usuário em questão
-            // Aqui mesmo envia a resposta para a Febraban
+            object febrabanAnswer = SendQuestionaryToFebraban(febrabanFormVO).Result; // Aqui mesmo envia a resposta para a Febraban
             // Salva a resposta da Febraban
             // Retorna a resposta da Febraban para o Front
-            return answers;
+            return febrabanAnswer;
         }
 
-        private object SendQuestionaryToFebraban()
+        private async Task<object> SendQuestionaryToFebraban(FebrabanFormVO febrabanFormVO)
         {
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"{_baseUrl}/oauth2/v1/access-token");
-            request.Content = new FormUrlEncodedContent(OpenFinanceApiAuth.Credentials);
-            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"{_febrabanBaseUrl}/integration/index_value");
+            string febrabanFormJson = JsonConvert.SerializeObject(febrabanFormVO, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() });
+            request.Content = new StringContent(febrabanFormJson);
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
             HttpResponseMessage response = await _accessClient.SendAsync(request);
 
             var responseBody = response.Content.ReadAsStringAsync();
 
-            dynamic result = JsonConvert.DeserializeObject(responseBody.Result);
-            this._accessToken = result["access_token"];
+            object result = JsonConvert.DeserializeObject(responseBody.Result);
 
-            return true;
+            return result;
 
         }
 

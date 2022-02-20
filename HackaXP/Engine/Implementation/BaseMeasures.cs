@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static HackaXP.Data.DTO.OpenFinance.Investiments;
+using static HackaXP.Data.DTO.OpenFinance.Investments;
 
 namespace HackaXP.Engine.Implementation
 {
@@ -130,7 +130,7 @@ namespace HackaXP.Engine.Implementation
         public static float CalculateTotalInvestedFundsInBank12Months(Bank bank, int minRisk = 0, int maxRisk = 100)
         {
             float totalInvested = 0.00f;
-            foreach (investimentFund fund in bank.Investiments.InvestimentFunds)
+            foreach (InvestmentFund fund in bank.Investments.InvestimentFunds)
             {
                 if (fund.Risk >= minRisk && fund.Risk <= maxRisk)
                 {
@@ -143,7 +143,7 @@ namespace HackaXP.Engine.Implementation
         public static float CalculateTotalInvestedStocksInBank12Months(Bank bank)
         {
             float totalInvested = 0.00f;
-            foreach (Stock stock in bank.Investiments.Stocks)
+            foreach (Stock stock in bank.Investments.Stocks)
             {
                 totalInvested += stock.Value * stock.Volume;
             }
@@ -153,27 +153,27 @@ namespace HackaXP.Engine.Implementation
         public static float CalculateTotalInvestedInFixedAssetsInBank12Months(Bank bank)
         {
             float totalInvested = 0.00f;
-            foreach (CdbAsset cdb in bank.Investiments.Cdb)
+            foreach (CdbAsset cdb in bank.Investments.Cdb)
             {
                 totalInvested += cdb.Value * cdb.Volume;
             }
 
-            foreach (FixedIncomeAsset lci in bank.Investiments.Lci)
+            foreach (FixedIncomeAsset lci in bank.Investments.Lci)
             {
                 totalInvested += lci.Value * lci.Volume;
             }
 
-            foreach (FixedIncomeAsset lca in bank.Investiments.Lca)
+            foreach (FixedIncomeAsset lca in bank.Investments.Lca)
             {
                 totalInvested += lca.Value * lca.Volume;
             }
 
-            foreach (FixedIncomeAsset cri in bank.Investiments.Cri)
+            foreach (FixedIncomeAsset cri in bank.Investments.Cri)
             {
                 totalInvested += cri.Value * cri.Volume;
             }
 
-            foreach (FixedIncomeAsset cra in bank.Investiments.Cra)
+            foreach (FixedIncomeAsset cra in bank.Investments.Cra)
             {
                 totalInvested += cra.Value * cra.Volume;
             }

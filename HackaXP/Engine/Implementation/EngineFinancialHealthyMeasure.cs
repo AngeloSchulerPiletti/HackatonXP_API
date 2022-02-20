@@ -257,7 +257,7 @@ namespace HackaXP.Business.Implementation
                 foreach (Bank bank in costumerData.Banks)
                 {
                     HowManyBankAccounts++;
-                    if (bank.PixHistory.Length > 0) UsesPix = true;
+                    if (bank.PixHistory.Count > 0) UsesPix = true;
                 }
 
                 int translatedResult = 1;
@@ -282,25 +282,23 @@ namespace HackaXP.Business.Implementation
 
         public FebrabanFormVO TranslateToFebrabanJson(EngineOwnMeasureVO engineOwnMeasureVO)
         {
-            List<FebrabanQuestionData> questionDataList = new List<FebrabanQuestionData>();
+            List<FebrabanQuestionData> emptyQuestionDataList = new();
             List<FebrabanQuestionSection> questionsSections = new();
-            questionsSections.Add(new FebrabanQuestionSection(1, questionDataList));
+            questionsSections.Add(new FebrabanQuestionSection(1, emptyQuestionDataList));
 
-            foreach (Question question in engineOwnMeasureVO.Scores)
-            {
-                FebrabanQuestionData translatedQuestion = new(question.QuestionCode, question.TranslatedScore);
-                questionDataList.Add(translatedQuestion);
-            }
             for (int i = 0; i < engineOwnMeasureVO.Scores.Count; i++)
             {
-                if(questionsSections.Last().Id < engineOwnMeasureVO.Scores[i].SectionId)
+                Question actualQuestion = engineOwnMeasureVO.Scores[i];
+                if (questionsSections.Last().Id < actualQuestion.SectionId)
                 {
-                    questionsSections.Add(new FebrabanQuestionSection(engineOwnMeasureVO.Scores[i].SectionId, /*Preciso ver*/));
+                    questionsSections.Add(new FebrabanQuestionSection(actualQuestion.SectionId, new List<FebrabanQuestionData>()));
                 }
 
+                questionsSections.Last().Questions.Add(new FebrabanQuestionData(actualQuestion.QuestionCode, actualQuestion.TranslatedScore));
             }
 
             FebrabanFormVO febrabanFormVO = new(questionsSections);
+            return febrabanFormVO;
         }
 
 

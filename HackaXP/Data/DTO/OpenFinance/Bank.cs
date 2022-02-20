@@ -15,10 +15,10 @@ namespace HackaXP.Data.DTO.OpenFinance
         public CreditCard CreditCard { get; set; }
         public Checking Checking { get; set; }
         public Saving Saving { get; set; }
-        public PixTransaction[] PixHistory { get; set; }
-        public CreditLine[] ConsumedCreditLines { get; set; }
-        public Investiments Investiments { get; set; }
-        public Bill[] Bills { get; set; }
+        public List<PixTransaction> PixHistory { get; set; }
+        public List<CreditLine> ConsumedCreditLines { get; set; }
+        public Investments Investments { get; set; }
+        public List<Bill> Bills { get; set; }
     }
 
     public class Institution
@@ -31,16 +31,26 @@ namespace HackaXP.Data.DTO.OpenFinance
 
     public class CreditCard
     {
+        public CreditCard()
+        {
+            Transactions = new List<Transactions>();
+        }
+
         public float Limit { get; set; }
-        public Transactions[] Transactions { get; set; }
+        public List<Transactions> Transactions { get; set; }
         public bool InstallmentsUsage { get; set; }
     }
 
     public class Checking
     {
+        public Checking()
+        {
+            Transactions = new List<Transactions>();
+        }
+
         public float Balance { get; set; }
         public float Limit { get; set; }
-        public Transactions[] Transactions { get; set; }
+        public List<Transactions> Transactions { get; set; }
 
     }
 

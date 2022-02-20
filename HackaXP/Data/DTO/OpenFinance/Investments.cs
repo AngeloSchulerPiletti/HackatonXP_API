@@ -5,17 +5,30 @@ using System.Threading.Tasks;
 
 namespace HackaXP.Data.DTO.OpenFinance
 {
-    public class Investiments
+    public class Investments
     {
-        public Stock[] Stocks { get; set; }
-        public CdbAsset[] Cdb { get; set; }
-        public investimentFund[] InvestimentFunds { get; set; }
-        public object[] SavingsAccount { get; set; }
-        public object[] PrivatePension { get; set; }
-        public FixedIncomeAsset[] Lci { get; set; }
-        public FixedIncomeAsset[] Lca { get; set; }
-        public FixedIncomeAsset[] Cri { get; set; }
-        public FixedIncomeAsset[] Cra { get; set; }
+        public Investments()
+        {
+            Stocks = new List<Stock>();
+            Cdb = new List<CdbAsset>();
+            InvestimentFunds = new List<InvestmentFund>();
+            SavingsAccount = new List<object>();
+            PrivatePension = new List<object>();
+            Lci = new List<FixedIncomeAsset>();
+            Lca = new List<FixedIncomeAsset>();
+            Cri = new List<FixedIncomeAsset>();
+            Cra = new List<FixedIncomeAsset>();
+        }
+
+        public List<Stock> Stocks { get; set; }
+        public List<CdbAsset> Cdb { get; set; }
+        public List<InvestmentFund> InvestimentFunds { get; set; }
+        public List<object> SavingsAccount { get; set; }
+        public List<object> PrivatePension { get; set; }
+        public List<FixedIncomeAsset> Lci { get; set; }
+        public List<FixedIncomeAsset> Lca { get; set; }
+        public List<FixedIncomeAsset> Cri { get; set; }
+        public List<FixedIncomeAsset> Cra { get; set; }
 
         public class Stock
         {
@@ -40,7 +53,7 @@ namespace HackaXP.Data.DTO.OpenFinance
             public DateTime AcquisitionDate { get; set; }
             public int Volume { get; set; }
         }
-        public class investimentFund
+        public class InvestmentFund
         {
             public string Identity { get; set; }
             public string BankId { get; set; }
