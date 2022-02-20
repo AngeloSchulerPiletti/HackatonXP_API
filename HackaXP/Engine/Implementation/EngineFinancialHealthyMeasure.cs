@@ -27,7 +27,10 @@ namespace HackaXP.Business.Implementation
         public float TotalInvested = 0.00f;
         public float AverageSuitability = 0.00f;
 
+        public int HowManyBankAccounts = 0;
+
         public bool UsesInstallments = false;
+        public bool UsesPix = false;
         public bool HaveStocks = false;
         public bool HaveAnyFixedAsset = false;
         public bool HaveFunds = false;
@@ -55,6 +58,9 @@ namespace HackaXP.Business.Implementation
 
             QuestionResultVO q6Result = Question6();
             engineOwnMeasureVO.Scores.Add(new Question(6, q6Result.AbsolutePercentualResult, q6Result.TranslatedResult));
+
+            QuestionResultVO q7Result = Question7();
+            engineOwnMeasureVO.Scores.Add(new Question(7, q7Result.AbsolutePercentualResult, q7Result.TranslatedResult));
 
 
 
@@ -108,9 +114,7 @@ namespace HackaXP.Business.Implementation
 
                 float percentualResult = (totalExpenses / totalIncomes);
 
-                int translatedResult;
-                if (percentualResult > 1) translatedResult = 1;
-                else translatedResult = (int)Math.Round(percentualResult * 5);
+                int translatedResult = (int)Math.Round(percentualResult * 5);
 
                 return new QuestionResultVO(translatedResult, percentualResult);
             }
@@ -140,10 +144,7 @@ namespace HackaXP.Business.Implementation
                 {
                     resultQuocient += 0.17f;
                 }
-                if (resultQuocient < 1)
-                {
-                    translatedResult = (int)Math.Round(resultQuocient * 5);
-                }
+                translatedResult = (int)Math.Round(resultQuocient * 5);
 
                 return new QuestionResultVO(translatedResult, resultQuocient);
             }
@@ -157,10 +158,9 @@ namespace HackaXP.Business.Implementation
                 int translatedResult = 5;
 
                 float quocientInvestimentsSalary = (OperationsCreditLine12Months.TotalFutureExpense) / (TotalInvested + Salary12Months + TotalCheckingBalance);
-                if (quocientInvestimentsSalary < 1)
-                {
-                    translatedResult = (int)Math.Round(quocientInvestimentsSalary * 5);
-                }
+
+                translatedResult = (int)Math.Round(quocientInvestimentsSalary * 5);
+
                 return new QuestionResultVO(translatedResult, quocientInvestimentsSalary);
             }
 
@@ -175,10 +175,9 @@ namespace HackaXP.Business.Implementation
                     translatedResult = (int)Math.Round(quocientInvestimentsSalary * 5);
                 }
 
-                if (quocientInvestimentsSalary < 1)
-                {
-                    translatedResult = (int)Math.Round(quocientInvestimentsSalary * 5);
-                }
+
+                translatedResult = (int)Math.Round(quocientInvestimentsSalary * 5);
+
                 return new QuestionResultVO(translatedResult, quocientInvestimentsSalary);
             }
 
@@ -214,8 +213,34 @@ namespace HackaXP.Business.Implementation
                     int quo1 = HaveStocks ? 1 : 0;
                     int quo2 = HaveFunds ? 1 : 0;
                     int quo3 = HaveAnyFixedAsset ? 1 : 0;
-                    quocientResult = ((quo1*3 + quo2*3 + quo3*2)/8);
-                } 
+                    quocientResult = ((quo1 * 3 + quo2 * 3 + quo3 * 2) / 8);
+
+                    translatedResult = (int)Math.Round(quocientResult * 5);
+                }
+
+                return new QuestionResultVO(translatedResult, translatedResult / 5);
+            }
+
+            QuestionResultVO Question7()
+            {
+                foreach (Bank bank in costumerData.Banks)
+                {
+                    HowManyBankAccounts++;
+                    if (bank.PixHistory.Length > 0) UsesPix = true;
+                }
+
+                int translatedResult = 1;
+                float quocientResult = 0.11f;
+                if (AverageSuitability > 20)
+                {
+                    int quo1 = HaveStocks ? 1 : 0;
+                    int quo2 = HaveFunds ? 1 : 0;
+                    int quo3 = HaveAnyFixedAsset ? 1 : 0;
+                    quocientResult = ((quo1 * 3 + quo2 * 3 + quo3 * 2) / 10);
+                    quocientResult += AverageSuitability / 500;
+                    quocientResult += HowManyBankAccounts / 20;
+                }
+                else if (UsesPix) quocientResult += 0.1f;
 
                 translatedResult = (int)Math.Round(quocientResult * 5);
 
