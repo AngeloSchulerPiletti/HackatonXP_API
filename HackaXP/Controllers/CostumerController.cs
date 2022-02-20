@@ -1,5 +1,7 @@
-﻿using HackaXP.Business.Implementation;
+﻿using HackaXP.Business;
+using HackaXP.Business.Implementation;
 using HackaXP.Data.DTO;
+using HackaXP.Data.DTO.OpenFinance;
 using HackaXP.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,10 +19,38 @@ namespace HackaXP.Controllers
     {
         private ICostumerBusiness _costumerBusiness;
         private ICostumerRepository _costumerRepository;
-        public CostumerController (ICostumerBusiness costumerBusiness)
+        private IOpenFinanceBusiness _openFinanceBusiness;
+        public CostumerController(ICostumerBusiness costumerBusiness, ICostumerRepository costumerRepository, IOpenFinanceBusiness openFinanceBusiness)
         {
             _costumerBusiness = costumerBusiness;
+            _costumerRepository = costumerRepository;
+            _openFinanceBusiness = openFinanceBusiness;
         }
+
+        [HttpPost]
+        [Route("calculate-financial-healthy")]
+        public IActionResult CalculateFinancialHealthy([FromBody] string costumerName)
+        {
+            if (!_costumerRepository.CheckIfCostumerExists(costumerName)) return BadRequest(new ActionsMessageResult("Cliente não existe ou não aprovou OpenFinance"));
+            if (!_costumerBusiness.CostumerAllowTest(costumerName)) return BadRequest(new ActionsMessageResult("Este cliente ainda não aprovou o OpenFinance"));
+
+            CostumerOpenFinanceData costumerData = _openFinanceBusiness.GetCostumer(costumerName).Result;
+
+            var answer = _openFinanceBusiness.CalculateFinancialHealthy(costumerData);
+
+            return Ok(answer);
+        }
+
+        [HttpPost]
+        [Route("approve-open-finance")]
+        public IActionResult ApproveOpenFinance([FromBody] NewCostumer newCostumer)
+        {
+            if (_costumerRepository.CheckIfCostumerExists(newCostumer.Name)) return BadRequest(new ActionsMessageResult("OpenFinance já está habilitado para este usuário"));
+
+            ActionsMessageResult result = _costumerRepository.AddCostumer(newCostumer);
+            return result.IsError ? BadRequest(result) : Ok(result);
+        }
+
 
         [HttpPatch]
         [Route("acceptance-financial-healthy-consult")]

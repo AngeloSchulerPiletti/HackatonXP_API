@@ -9,7 +9,7 @@ namespace HackaXP.Models
 {
     public class Costumer
     {
-        public Costumer(string name, long lastFinancialHealthyHistoryId, bool? allowTest, bool? allowOpenFinance)
+        public Costumer(string name, bool allowTest, bool allowOpenFinance, long lastFinancialHealthyHistoryId = 0)
         {
             Name = name;
             LastFinancialHealthyHistoryId = lastFinancialHealthyHistoryId;
@@ -28,10 +28,10 @@ namespace HackaXP.Models
         public long LastFinancialHealthyHistoryId { get; set; }
 
         [Column("allow_test")]
-        public bool? AllowTest { get; set; }
+        public bool AllowTest { get; set; }
 
         [Column("allow_open_finance")]
-        public bool? AllowOpenFinance { get; set; }
+        public bool AllowOpenFinance { get; set; }
 
     }
 }

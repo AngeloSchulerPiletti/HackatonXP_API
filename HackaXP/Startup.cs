@@ -1,4 +1,9 @@
 using backend.Models.Context;
+using HackaXP.Business;
+using HackaXP.Business.Implementation;
+using HackaXP.Data.VO.Engine;
+using HackaXP.Repository;
+using HackaXP.Repository.Implementation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -38,7 +43,15 @@ namespace HackaXP
             }
 
             services.AddApiVersioning();
-            services.AddControllers();
+
+            services.AddScoped<IOpenFinanceBusiness, OpenFinanceBusiness>();
+            services.AddScoped<ICostumerBusiness, CostumerBusiness>();
+            services.AddScoped<ICostumerRepository, CostumerRepository>();
+
+            services.AddScoped<IEngineFinancialHealthyMeasure, EngineFinancialHealthyMeasure>();
+
+            services.AddControllers().AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "HackaXP", Version = "v1" });

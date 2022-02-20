@@ -17,6 +17,45 @@ namespace HackaXP.Repository.Implementation
             _context = context;
         }
 
+        public ActionsMessageResult AddCostumer(NewCostumer newCostumer)
+        {
+            try
+            {
+                Costumer costumer = new(newCostumer.Name, newCostumer.AllowTest, newCostumer.AllowOpenFinance);
+                _context.Costumers.Add(costumer);
+                _context.SaveChanges();
+                return new ActionsMessageResult("OpenFinance liberado com sucesso!", false);
+            }
+            catch
+            {
+                return new ActionsMessageResult("Algo deu errado ao aprovar o OpenFinance, tente mais tarde");
+            }
+        }
+
+        public bool CheckIfCostumerExists(long costumerId)
+        {
+            Costumer costumer = _context.Costumers.FirstOrDefault(c => c.Id == costumerId);
+            return costumer != null;
+        }
+
+        public bool CheckIfCostumerExists(string costumerName)
+        {
+            Costumer costumer = _context.Costumers.FirstOrDefault(c => c.Name == costumerName);
+            return costumer != null;
+        }
+
+        public Costumer GetCostumerData(long costumerId)
+        {
+            Costumer costumer = _context.Costumers.FirstOrDefault(c => c.Id == costumerId);
+            return costumer;
+        }
+
+        public Costumer GetCostumerData(string costumerName)
+        {
+            Costumer costumer = _context.Costumers.FirstOrDefault(c => c.Name == costumerName);
+            return costumer;
+        }
+
         public ActionsMessageResult UpdateCostumerAcceptance(CostumerAcceptance acceptanceDto)
         {
             try
@@ -25,7 +64,6 @@ namespace HackaXP.Repository.Implementation
                 costumer.AllowTest = acceptanceDto.Acceptance;
                 _context.SaveChanges();
                 return new ActionsMessageResult("Alteração realizada com sucesso", false);
-
             }
             catch
             {

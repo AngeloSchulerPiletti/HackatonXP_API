@@ -7,6 +7,7 @@ namespace HackaXP.Business.Implementation
 {
     public interface ICostumerBusiness
     {
-        
+        bool CostumerAllowTest(long costumerId);
+        bool CostumerAllowTest(string costumerName);
     }
 }
