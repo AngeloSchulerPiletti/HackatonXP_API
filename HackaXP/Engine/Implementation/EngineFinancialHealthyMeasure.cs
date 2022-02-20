@@ -25,8 +25,10 @@ namespace HackaXP.Business.Implementation
         public float TotalInvestedLowRiskFunds = 0.00f;
         public float TotalInvestedFunds = 0.00f;
         public float TotalInvestedStocks = 0.00f;
-        public float TotalInvested = 0.00f;
         public float AverageSuitability = 0.00f;
+        public float TotalInvested = 0.00f;
+        public float TotalExpenses = 0.00f;
+        public float TotalIncomes = 0.00f;
 
         public int HowManyBankAccounts = 0;
 
@@ -38,8 +40,12 @@ namespace HackaXP.Business.Implementation
 
         public float Salary12Months;
 
+
         public EngineOwnMeasureVO Calculate(CostumerOpenFinanceData costumerData)
         {
+            bool done = MappingLocalData();
+            if (!done) return null;
+
             EngineOwnMeasureVO engineOwnMeasureVO = new();
 
             QuestionResultVO q1Result = Question1();
@@ -93,9 +99,78 @@ namespace HackaXP.Business.Implementation
             engineOwnMeasureVO.Scores.Add(new Question("bf4", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 6));
 
 
-
-
             return engineOwnMeasureVO;
+
+            bool MappingLocalData()
+            {
+                try
+                {
+                    foreach (Bank bank in costumerData.Banks)
+                    {
+                        HowManyBankAccounts++;
+
+                        if (bank.PixHistory.Count > 0) UsesPix = true;
+
+                        Operations operationsCreditCard = BaseMeasures.CalculateCreditCardTransactionInBank12Months(bank);
+                        OperationsCreditCard12Months.Expenses += operationsCreditCard.Expenses;
+                        OperationsCreditCard12Months.Incomes += operationsCreditCard.Incomes;
+
+                        Operations operationsBills = BaseMeasures.CalculateBillsPaymentInBank12Months(bank);
+                        OperationsBills12Months.Expenses += operationsBills.Expenses;
+                        OperationsBills12Months.Incomes += operationsBills.Incomes;
+
+                        Operations operationsChecking = BaseMeasures.CalculateCheckingTransactionsInBank12Months(bank);
+                        OperationsChecking12Months.Expenses += operationsBills.Expenses;
+                        OperationsChecking12Months.Incomes += operationsBills.Incomes;
+
+                        Operations operationsPix = BaseMeasures.CalculatePixTransactionInBank12Months(bank, costumerData.Cpf);
+                        OperationsPix12Months.Expenses += operationsBills.Expenses;
+                        OperationsPix12Months.Incomes += operationsBills.Incomes;
+
+                        Operations operationsCreditLine = BaseMeasures.CalculateCreditLineExpenseInBank12Months(bank);
+                        OperationsCreditLine12Months.Expenses += operationsBills.Expenses;
+                        OperationsCreditLine12Months.Incomes += operationsBills.Incomes;
+
+                        TotalInvestedStocks += BaseMeasures.CalculateTotalInvestedStocksInBank12Months(bank);
+                        if (TotalInvestedStocks > 1000) HaveStocks = true;
+                        TotalInvestedFixedAssets += BaseMeasures.CalculateTotalInvestedInFixedAssetsInBank12Months(bank);
+                        if (TotalInvestedFixedAssets > 1000) HaveAnyFixedAsset = true;
+                        TotalInvestedFunds = BaseMeasures.CalculateTotalInvestedFundsInBank12Months(bank);
+                        if (TotalInvestedFunds > 1000) HaveFunds = true;
+                        TotalInvestedLowRiskFunds += BaseMeasures.CalculateTotalInvestedFundsInBank12Months(bank, 0, 40);
+
+                        TotalSavingBalance += bank.Saving.Balance;
+                        TotalCheckingBalance += bank.Checking.Balance;
+
+                        if (bank.CreditCard.InstallmentsUsage) UsesInstallments = true;
+
+                        TotalInvested += BaseMeasures.CalculateTotalInvestedInBank12Months(bank);
+
+                        TotalExpenses +=
+                            (operationsBills.Expenses +
+                            operationsChecking.Expenses +
+                            operationsCreditCard.Expenses +
+                            operationsPix.Expenses +
+                            operationsCreditLine.Expenses);
+
+                        TotalIncomes +=
+                            (operationsBills.Incomes +
+                            operationsChecking.Incomes +
+                            operationsCreditCard.Incomes +
+                            operationsPix.Incomes +
+                            operationsCreditLine.Incomes);
+
+                        AverageSuitability += bank.Suitablity;
+                    }
+                    TotalIncomes += Salary12Months;
+                    AverageSuitability /= costumerData.Banks.Length;
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
 
             QuestionResultVO Question1()
             {
@@ -103,47 +178,7 @@ namespace HackaXP.Business.Implementation
 
                 Salary12Months = costumerData.Salary * 13;
 
-                float totalExpenses = 0.00f;
-                float totalIncomes = 0.00f;
-                foreach (Bank bank in costumerData.Banks)
-                {
-                    Operations operationsCreditCard = BaseMeasures.CalculateCreditCardTransactionInBank12Months(bank);
-                    OperationsCreditCard12Months.Expenses += operationsCreditCard.Expenses;
-                    OperationsCreditCard12Months.Incomes += operationsCreditCard.Incomes;
-
-                    Operations operationsBills = BaseMeasures.CalculateBillsPaymentInBank12Months(bank);
-                    OperationsBills12Months.Expenses += operationsBills.Expenses;
-                    OperationsBills12Months.Incomes += operationsBills.Incomes;
-
-                    Operations operationsChecking = BaseMeasures.CalculateCheckingTransactionsInBank12Months(bank);
-                    OperationsChecking12Months.Expenses += operationsBills.Expenses;
-                    OperationsChecking12Months.Incomes += operationsBills.Incomes;
-
-                    Operations operationsPix = BaseMeasures.CalculatePixTransactionInBank12Months(bank, costumerData.Cpf);
-                    OperationsPix12Months.Expenses += operationsBills.Expenses;
-                    OperationsPix12Months.Incomes += operationsBills.Incomes;
-
-                    Operations operationsCreditLine = BaseMeasures.CalculateCreditLineExpenseInBank12Months(bank);
-                    OperationsCreditLine12Months.Expenses += operationsBills.Expenses;
-                    OperationsCreditLine12Months.Incomes += operationsBills.Incomes;
-
-                    totalExpenses +=
-                        (operationsBills.Expenses +
-                        operationsChecking.Expenses +
-                        operationsCreditCard.Expenses +
-                        operationsPix.Expenses +
-                        operationsCreditLine.Expenses);
-
-                    totalIncomes +=
-                        (operationsBills.Incomes +
-                        operationsChecking.Incomes +
-                        operationsCreditCard.Incomes +
-                        operationsPix.Incomes +
-                        operationsCreditLine.Incomes);
-                }
-                totalIncomes += Salary12Months;
-
-                float percentualResult = (totalExpenses / totalIncomes);
+                float percentualResult = (TotalExpenses / TotalIncomes);
 
                 int translatedResult = (int)Math.Round(percentualResult * 5);
 
@@ -152,17 +187,6 @@ namespace HackaXP.Business.Implementation
 
             QuestionResultVO Question2()
             {
-                foreach (Bank bank in costumerData.Banks)
-                {
-                    TotalInvestedFixedAssets += BaseMeasures.CalculateTotalInvestedInFixedAssetsInBank12Months(bank);
-                    TotalInvestedLowRiskFunds += BaseMeasures.CalculateTotalInvestedFundsInBank12Months(bank, 0, 40);
-
-                    TotalSavingBalance += bank.Saving.Balance;
-                    TotalCheckingBalance += bank.Checking.Balance;
-
-                    if (bank.CreditCard.InstallmentsUsage) UsesInstallments = true;
-                }
-
                 int translatedResult = 5;
 
                 float quocientMonthlyExpensesIncomes = (OperationsBills12Months.Expenses + OperationsPix12Months.Expenses) / (Salary12Months + OperationsPix12Months.Incomes);
@@ -182,10 +206,6 @@ namespace HackaXP.Business.Implementation
 
             QuestionResultVO Question3()
             {
-                foreach (Bank bank in costumerData.Banks)
-                {
-                    TotalInvested += BaseMeasures.CalculateTotalInvestedInBank12Months(bank);
-                }
                 int translatedResult = 5;
 
                 float quocientInvestimentsSalary = (OperationsCreditLine12Months.TotalFutureExpense) / (TotalInvested + Salary12Months + TotalCheckingBalance);
@@ -197,29 +217,17 @@ namespace HackaXP.Business.Implementation
 
             QuestionResultVO Question4()
             {
-                int translatedResult = 5;
                 float quocientInvestimentsSalary = 1;
 
-                if (TotalInvested > 0)
-                {
-                    quocientInvestimentsSalary = (OperationsCreditLine12Months.TotalFutureExpense) / (Salary12Months + TotalCheckingBalance);
-                    translatedResult = (int)Math.Round(quocientInvestimentsSalary * 5);
-                }
+                if (TotalInvested > 0) quocientInvestimentsSalary = (OperationsCreditLine12Months.TotalFutureExpense) / (Salary12Months + TotalCheckingBalance);
 
-
-                translatedResult = (int)Math.Round(quocientInvestimentsSalary * 5);
+                int translatedResult = (int)Math.Round(quocientInvestimentsSalary * 5);
 
                 return new QuestionResultVO(translatedResult, quocientInvestimentsSalary);
             }
 
             QuestionResultVO Question5()
             {
-                for (int i = 0; i < costumerData.Banks.Length; i++)
-                {
-                    AverageSuitability += costumerData.Banks[i].Suitablity;
-                }
-                AverageSuitability /= costumerData.Banks.Length;
-
                 int translatedResult = 5;
                 if (TotalInvested < 1000000) translatedResult = TotalInvested <= 1000 ? 1 : (int)Math.Round(AverageSuitability / 20);
 
@@ -228,15 +236,6 @@ namespace HackaXP.Business.Implementation
 
             QuestionResultVO Question6()
             {
-                foreach (Bank bank in costumerData.Banks)
-                {
-                    TotalInvestedStocks += BaseMeasures.CalculateTotalInvestedStocksInBank12Months(bank);
-                    if (TotalInvestedStocks > 1000) HaveStocks = true;
-                    if (TotalInvestedFixedAssets > 1000) HaveAnyFixedAsset = true;
-                    TotalInvestedFunds = BaseMeasures.CalculateTotalInvestedFundsInBank12Months(bank);
-                    if (TotalInvestedFunds > 1000) HaveFunds = true;
-                }
-
                 int translatedResult = 1;
                 float quocientResult = 0;
                 if (AverageSuitability > 20)
@@ -254,13 +253,6 @@ namespace HackaXP.Business.Implementation
 
             QuestionResultVO Question7()
             {
-                foreach (Bank bank in costumerData.Banks)
-                {
-                    HowManyBankAccounts++;
-                    if (bank.PixHistory.Count > 0) UsesPix = true;
-                }
-
-                int translatedResult = 1;
                 float quocientResult = 0.11f;
                 if (AverageSuitability > 20)
                 {
@@ -273,7 +265,7 @@ namespace HackaXP.Business.Implementation
                 }
                 else if (UsesPix) quocientResult += 0.1f;
 
-                translatedResult = (int)Math.Round(quocientResult * 5);
+                int translatedResult = (int)Math.Round(quocientResult * 5);
 
                 return new QuestionResultVO(translatedResult, translatedResult / 5);
             }

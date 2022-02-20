@@ -36,10 +36,12 @@ namespace HackaXP.Controllers
         {
             if (!_costumerRepository.CheckIfCostumerExists(costumerName)) return BadRequest(new ActionsMessageResult("Cliente não existe ou não aprovou OpenFinance"));
             if (!_costumerBusiness.CostumerAllowTest(costumerName)) return BadRequest(new ActionsMessageResult("Este cliente ainda não aprovou o OpenFinance"));
+            // Verifica quando foi a última vez que o usuario fez a consulta, nao pode ser menos de 7 dias
 
             CostumerOpenFinanceData costumerData = _openFinanceBusiness.GetCostumer(costumerName).Result;
 
             FebrabanFormVO febrabanFormVO = _openFinanceBusiness.CalculateFinancialHealthy(costumerData);
+            if (febrabanFormVO == null) return BadRequest("Houve um erro ao interpretar as informações do OpenFinance");
 
             FebrabanResponseData febrabanAnswer = _openFinanceBusiness.SendQuestionaryToFebraban(febrabanFormVO).Result;
             if (!febrabanAnswer.Success) return BadRequest("Houve um erro ao enviar os dados para o serviço da Febraban");

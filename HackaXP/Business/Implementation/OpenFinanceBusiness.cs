@@ -46,6 +46,8 @@ namespace HackaXP.Business.Implementation
         public FebrabanFormVO CalculateFinancialHealthy(CostumerOpenFinanceData costumerData)
         {
             EngineOwnMeasureVO answers = _engine.Calculate(costumerData); // Retorna uma resposta numérica percetual estrturuada para cada pergunta
+            if (answers == null) return null;
+
             FebrabanFormVO febrabanFormVO = _engine.TranslateToFebrabanJson(answers); // Engine Traduz a resposta numérica percentual para a estrutura de resposta esperada pelo servidor
 
             return febrabanFormVO;
