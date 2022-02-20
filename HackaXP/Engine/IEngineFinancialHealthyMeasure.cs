@@ -9,5 +9,6 @@ namespace HackaXP.Data.VO.Engine
     public interface IEngineFinancialHealthyMeasure
     {
         EngineOwnMeasureVO Calculate(CostumerOpenFinanceData costumerData);
+        FebrabanFormVO TranslateToFebrabanJson(EngineOwnMeasureVO engineOwnMeasureVO);
     }
 }

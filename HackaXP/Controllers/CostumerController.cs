@@ -49,7 +49,8 @@ namespace HackaXP.Controllers
             //Verifica se o usuário existe na api da xp
 
             ActionsMessageResult result = _costumerRepository.AddCostumer(newCostumer);
-            return result.IsError ? BadRequest(result) : Ok(result);
+            //return result.IsError ? BadRequest(result) : Ok(result);
+            return Ok();
         }
 
 

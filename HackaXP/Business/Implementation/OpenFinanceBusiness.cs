@@ -41,12 +41,29 @@ namespace HackaXP.Business.Implementation
         public object CalculateFinancialHealthy(CostumerOpenFinanceData costumerData)
         {
             EngineOwnMeasureVO answers = _engine.Calculate(costumerData); // Retorna uma resposta numérica percetual estrturuada para cada pergunta
-            // Engine Traduz a resposta numérica percentual para a estrutura de resposta esperada pelo servidor
+            FebrabanFormVO febrabanFormVO = _engine.TranslateToFebrabanJson(answers); // Engine Traduz a resposta numérica percentual para a estrutura de resposta esperada pelo servidor
             // Salva a resposta numérica percetual estrturuada para o usuário em questão
             // Aqui mesmo envia a resposta para a Febraban
             // Salva a resposta da Febraban
             // Retorna a resposta da Febraban para o Front
             return answers;
+        }
+
+        private object SendQuestionaryToFebraban()
+        {
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"{_baseUrl}/oauth2/v1/access-token");
+            request.Content = new FormUrlEncodedContent(OpenFinanceApiAuth.Credentials);
+            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+
+            HttpResponseMessage response = await _accessClient.SendAsync(request);
+
+            var responseBody = response.Content.ReadAsStringAsync();
+
+            dynamic result = JsonConvert.DeserializeObject(responseBody.Result);
+            this._accessToken = result["access_token"];
+
+            return true;
+
         }
 
         private async Task<bool> UpdateAccessToken()

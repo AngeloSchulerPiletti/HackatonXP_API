@@ -249,5 +249,12 @@ namespace HackaXP.Business.Implementation
         }
 
 
+        public FebrabanFormVO TranslateToFebrabanJson(EngineOwnMeasureVO engineOwnMeasureVO)
+        {
+
+
+        }
+
+
     }
 }
