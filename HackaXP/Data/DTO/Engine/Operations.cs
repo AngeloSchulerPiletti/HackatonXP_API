@@ -9,5 +9,6 @@ namespace HackaXP.Data.DTO.Engine
     {
         public float Incomes { get; set; }
         public float Expenses { get; set; }
+        public float TotalFutureExpense { get; set; }
     }
 }

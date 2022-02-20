@@ -9,7 +9,7 @@ namespace HackaXP.Data.DTO.Engine
     {
         public QuestionResultVO(int translatedResult, float absolutePercentualResult)
         {
-            TranslatedResult = translatedResult;
+            TranslatedResult = translatedResult == 0 ? 1 : translatedResult;
             AbsolutePercentualResult = absolutePercentualResult;
         }
 

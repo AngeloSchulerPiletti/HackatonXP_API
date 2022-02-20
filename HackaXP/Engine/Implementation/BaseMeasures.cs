@@ -97,43 +97,10 @@ namespace HackaXP.Engine.Implementation
 
                         double totalTax = Math.Pow((1 + creditLine.Tax), paidDateRangeInMonths);
                         totalExpense = ((creditLine.Value / creditLine.Installments) * paidInstallments) * totalTax;
-                    }
-                    operations.Expenses += (float)Math.Round(totalExpense, 2);
-                }
-            }
-            return operations;
-        }
 
-        public static Operations CalculateFutureCreditLineExpenseInBank12Months(Bank bank)
-        {
-            Operations operations = new();
-            foreach (CreditLine creditLine in bank.ConsumedCreditLines)
-            {
-                if ((creditLine.EndDate > OneYearAgo) && (creditLine.StartDate < DateTime.Now))
-                {
-                    DateTime countDateStart =
-                        (creditLine.StartDate.Date >= OneYearAgo) ?
-                        creditLine.StartDate : OneYearAgo;
-
-                    TimeSpan creditDateRange = creditLine.EndDate.Subtract(countDateStart);
-                    double creditDateRangeChunk = (creditDateRange.TotalMilliseconds / (creditLine.Installments - 1));
-
-                    double totalExpense = 0;
-
-                    TimeSpan paidDateRange = DateTime.Now.Date.Subtract(countDateStart);
-                    int paidDateRangeInMonths = (int)Math.Round(paidDateRange.TotalDays / 30.4);
-
-                    if (creditLine.EndDate.Date <= DateTime.Now.Date)
-                    {
-                        double totalTax = Math.Pow((1 + creditLine.Tax), paidDateRangeInMonths);
-                        totalExpense = creditLine.Value * totalTax;
-                    }
-                    else
-                    {
-                        int paidInstallments = (int)Math.Round(paidDateRange.TotalMilliseconds / creditDateRangeChunk);
-
-                        double totalTax = Math.Pow((1 + creditLine.Tax), paidDateRangeInMonths);
-                        totalExpense = ((creditLine.Value / creditLine.Installments) * paidInstallments) * totalTax;
+                        float totalCreditLineExpense = creditLine.Value * (float)Math.Pow((1 + creditLine.Tax), (int)Math.Round(creditLine.EndDate.TimeOfDay.TotalDays / 30.4));
+                        float futureExpense = (float)(totalCreditLineExpense - totalExpense);
+                        operations.TotalFutureExpense += (float)Math.Round(futureExpense, 2);
                     }
                     operations.Expenses += (float)Math.Round(totalExpense, 2);
                 }
