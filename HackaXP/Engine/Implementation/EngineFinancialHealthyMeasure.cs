@@ -15,12 +15,12 @@ namespace HackaXP.Business.Implementation
         {
             EngineOwnMeasureVO engineOwnMeasureVO = new();
 
-            float q1DecimalResult = Question1();
-            engineOwnMeasureVO.Scores.Add(new Question(1, q1DecimalResult));
+            List<float> q1DecimalResult = Question1();
+            engineOwnMeasureVO.Scores.Add(new Question(1, q1DecimalResult[0], (int)q1DecimalResult[1]));
 
             return engineOwnMeasureVO;
 
-            float Question1()
+            List<float> Question1()
             {
                 DateTime OneYearAgo = DateTime.Now.AddDays(-365).Date;
 
@@ -29,7 +29,6 @@ namespace HackaXP.Business.Implementation
                 float totalExpensesPix12Months = 0.00f;
                 float totalExpensesTransactions12Months = 0.00f;
                 float totalExpensesCreditLines12Months = 0.00f;
-
 
                 float totalIncomePix12Months = 0.00f;
                 float totalIncomeTransactions12Months = 0.00f;
@@ -83,22 +82,25 @@ namespace HackaXP.Business.Implementation
                             //    DateTime.Compare(creditLine.EndDate.Date, DateTime.Now.Date) <= 0 ?
                             //    DateTime.Now.Date : creditLine.EndDate;
 
-                            TimeSpan DateRange = creditLine.EndDate.Subtract(countDateStart);
-                            double DateRangeChunk = (DateRange.TotalMilliseconds / (creditLine.Installments - 1));
+                            TimeSpan creditDateRange = creditLine.EndDate.Subtract(countDateStart);
+                            double creditDateRangeChunk = (creditDateRange.TotalMilliseconds / (creditLine.Installments - 1));
 
                             double totalExpense = 0;
 
+                            TimeSpan paidDateRange = DateTime.Now.Date.Subtract(countDateStart);
+                            int paidDateRangeInMonths = (int)Math.Round(paidDateRange.TotalDays / 30.4);
+
                             if (creditLine.EndDate.Date <= DateTime.Now.Date)
                             {
-                                double totalTax = Math.Pow((1 + creditLine.Tax), creditLine.Installments);
+                                double totalTax = Math.Pow((1 + creditLine.Tax), paidDateRangeInMonths);
                                 totalExpense = creditLine.Value * totalTax;
                             }
                             else
                             {
-                                double LimitedDateRange = DateTime.Now.Date.Subtract(countDateStart).TotalMilliseconds;
-                                int paidInstallments = (int)Math.Round(LimitedDateRange / DateRangeChunk);
+                                // Ao invés de paidInstallments, eleva-se à quantidade de meses correspondente
+                                int paidInstallments = (int)Math.Round(paidDateRange.TotalMilliseconds / creditDateRangeChunk);
 
-                                double totalTax = Math.Pow((1 + creditLine.Tax), paidInstallments);
+                                double totalTax = Math.Pow((1 + creditLine.Tax), paidDateRangeInMonths);
                                 totalExpense = ((creditLine.Value / creditLine.Installments) * paidInstallments) * totalTax;
                             }
                             totalExpensesCreditLines12Months += (float)Math.Round(totalExpense, 2);
@@ -117,7 +119,13 @@ namespace HackaXP.Business.Implementation
                     totalIncomePix12Months +
                     totalIncomeTransactions12Months;
 
-                return (totalExpensesIn12Months / totalIncomesIn12Months);
+                float percentualResult = (totalExpensesIn12Months / totalIncomesIn12Months);
+
+                float translatedResult;
+                if (percentualResult > 1) translatedResult = 1;
+                else translatedResult = (float)Math.Round(percentualResult * 5);
+
+                return new List<float>() { percentualResult, translatedResult };
             }
         }
 
