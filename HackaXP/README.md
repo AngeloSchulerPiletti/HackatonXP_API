@@ -30,7 +30,7 @@ Depois disso, todos os demais endpoints estarão operáveis.
 ## FrontEnd da aplicação
 Utilize o link a seguir para vizualizar o respositório do FrontEnd: https://github.com/rodolfomariano/Hackathon-XP-Front-end
 
-<img src="front.png" />
+<img src="./ReadmeAssets/front.png" />
 
 ## Acesso a API em Produção
 Utilize este endpoint para acessar a API em produção: http://51.222.32.180:5002/api/v1/
