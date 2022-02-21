@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Folder Include="db\dataset\" />
+    <Folder Include="ReadmeAssets\" />
   </ItemGroup>
 
 </Project>
