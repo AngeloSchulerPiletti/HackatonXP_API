@@ -1,5 +1,5 @@
 CREATE TABLE `financialhealthyhistorys` (
-	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`id` INT(5) NOT NULL AUTO_INCREMENT,
 	`consult_date` DATETIME NOT NULL,
 	`costumer_id` VARCHAR(200) NOT NULL,
 	`financial_behavior_score` INT(4) NOT NULL,

@@ -55,6 +55,32 @@ namespace HackaXP.Controllers
             return Ok(febrabanFinancialHealthyAnswer);
         }
 
+        [HttpGet]
+        [Route("user-info/{userName}")]
+        public IActionResult GetUserInfo(string userName)
+        {
+            bool exists =_costumerRepository.CheckIfCostumerExists(userName);
+            if (!exists) return BadRequest("Esse usuário não existe");
+
+            Costumer costumer = _costumerRepository.GetCostumerData(userName);
+            return Ok(costumer);
+        }
+
+        [HttpGet]
+        [Route("user-info/{userName}/last-financial-healthy-consult")]
+        public IActionResult GetUserFinancialHealthyConsult(string userName)
+        {
+            bool exists = _costumerRepository.CheckIfCostumerExists(userName);
+            if (!exists) return BadRequest("Esse usuário não existe");
+
+            Costumer costumer = _costumerRepository.GetCostumerData(userName);
+            if (costumer.LastFinancialHealthyHistoryId == 0) return BadRequest("Você ainda não realizou uma consulta de saúde financeira");
+
+            FinancialHealthyHistory consult = _costumerRepository.GetLastFinancialHealthyConsult(costumer.LastFinancialHealthyHistoryId);
+
+            return Ok(consult);
+        }
+
         [HttpPost]
         [Route("approve-open-finance")]
         public IActionResult ApproveOpenFinance([FromBody] NewCostumer newCostumer)

@@ -59,14 +59,10 @@ namespace HackaXP.Repository.Implementation
             return costumer;
         }
 
-        public FinancialHealthyHistory GetLastFinancialHealthyConsult(int userId)
+        public FinancialHealthyHistory GetLastFinancialHealthyConsult(long lastFinancialHealthyHistoryId)
         {
-            throw new NotImplementedException();
-        }
-
-        public FinancialHealthyHistory GetLastFinancialHealthyConsult(string userName)
-        {
-            throw new NotImplementedException();
+            FinancialHealthyHistory consult = _context.FinancialHealthyHistorys.FirstOrDefault(f => f.Id == lastFinancialHealthyHistoryId);
+            return consult;
         }
 
         public FinancialHealthyHistory SaveFinancialHealthyConsult(FebrabanCompleteResultData febrabanResponse, long costumerId)
@@ -82,6 +78,8 @@ namespace HackaXP.Repository.Implementation
             try
             {
                 _context.FinancialHealthyHistorys.Add(financialHealthyConsult);
+                _context.SaveChanges();
+
                 Costumer costumer = _context.Costumers.First(c => c.Id == costumerId);
                 costumer.LastFinancialHealthyHistoryId = financialHealthyConsult.Id;
                 _context.SaveChanges();

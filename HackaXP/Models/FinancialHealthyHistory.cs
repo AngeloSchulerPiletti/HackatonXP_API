@@ -22,7 +22,7 @@ namespace HackaXP.Models
 
         [Key]
         [Column("id")]
-        public long Id { get; set; }
+        public int Id { get; set; }
 
         [Column("consult_date")]
         public DateTime ConsultDate { get; set; }

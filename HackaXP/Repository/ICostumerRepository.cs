@@ -15,8 +15,7 @@ namespace HackaXP.Repository
         bool CheckIfCostumerExists(string costumerName);
         Costumer GetCostumerData(long costumerId);
         Costumer GetCostumerData(string costumerName);
-        FinancialHealthyHistory GetLastFinancialHealthyConsult(int userId);
-        FinancialHealthyHistory GetLastFinancialHealthyConsult(string userName);
+        FinancialHealthyHistory GetLastFinancialHealthyConsult(long lastFinancialHealthyHistoryId);
         FinancialHealthyHistory SaveFinancialHealthyConsult(FebrabanCompleteResultData febrabanResponse, long costumerId);
         ActionsMessageResult UpdateCostumerAcceptance(CostumerAcceptance acceptanceDto);
     }
