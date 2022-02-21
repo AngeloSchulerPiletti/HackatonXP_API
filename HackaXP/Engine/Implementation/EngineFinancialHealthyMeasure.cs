@@ -72,31 +72,31 @@ namespace HackaXP.Business.Implementation
 
 
             // Mocked data
-            engineOwnMeasureVO.Scores.Add(new Question("at1", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 3));
+            engineOwnMeasureVO.Scores.Add(new Question("at1", 0.6f, 3, 3));
 
-            engineOwnMeasureVO.Scores.Add(new Question("at2", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 3));
+            engineOwnMeasureVO.Scores.Add(new Question("at2", 0.6f, 3, 3));
 
-            engineOwnMeasureVO.Scores.Add(new Question("at3", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 3));
-
-
-            engineOwnMeasureVO.Scores.Add(new Question("l1", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 4));
-
-            engineOwnMeasureVO.Scores.Add(new Question("l2", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 4));
+            engineOwnMeasureVO.Scores.Add(new Question("at3", 0.6f, 3, 3));
 
 
-            engineOwnMeasureVO.Scores.Add(new Question("ap1", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 5));
+            engineOwnMeasureVO.Scores.Add(new Question("l1", 0.6f, 3, 4));
 
-            engineOwnMeasureVO.Scores.Add(new Question("ap2", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 5));
+            engineOwnMeasureVO.Scores.Add(new Question("l2", 0.6f, 3, 4));
 
-            engineOwnMeasureVO.Scores.Add(new Question("ap3", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 5));
+
+            engineOwnMeasureVO.Scores.Add(new Question("ap1", 0.6f, 3, 5));
+
+            engineOwnMeasureVO.Scores.Add(new Question("ap2", 0.6f, 3, 5));
+
+            engineOwnMeasureVO.Scores.Add(new Question("ap3", 0.6f, 3, 5));
 
             // Essa é de selecionar...
             //engineOwnMeasureVO.SelectableQuestions.Add(new SelectableQuestion(1, "bf3", true));
-            engineOwnMeasureVO.Scores.Add(new Question("bf3", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 6)); // Isso nao serve para nada
+            engineOwnMeasureVO.Scores.Add(new Question("bf3", 0.6f, 3, 6)); // Isso nao serve para nada
 
-            engineOwnMeasureVO.Scores.Add(new Question("bf2", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 6));
+            engineOwnMeasureVO.Scores.Add(new Question("bf2", 0.6f, 3, 6));
 
-            engineOwnMeasureVO.Scores.Add(new Question("bf4", q7Result.AbsolutePercentualResult, q7Result.TranslatedResult, 6));
+            engineOwnMeasureVO.Scores.Add(new Question("bf4", 0.6f, 3, 6));
 
 
             return engineOwnMeasureVO;

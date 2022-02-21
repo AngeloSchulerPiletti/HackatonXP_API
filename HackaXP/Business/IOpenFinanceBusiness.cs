@@ -10,9 +10,10 @@ namespace HackaXP.Business
 {
     public interface IOpenFinanceBusiness
     {
-        Task<CostumerOpenFinanceData> GetCostumer(string costumerName);
         FebrabanFormVO CalculateFinancialHealthy(CostumerOpenFinanceData costumerData);
-        Task<FebrabanResponseData> SendQuestionaryToFebraban(FebrabanFormVO febrabanFormVO);
+        //Task<bool> CheckIfUserExistsInOpenFinanceXp(string costumerName);
+        Task<CostumerOpenFinanceData> GetCostumer(string costumerName);
         Task<FebrabanCompleteResultData> GetFormResultFromFebraban(FebrabanResponseData febrabanResponseData);
+        Task<FebrabanResponseData> SendQuestionaryToFebraban(FebrabanFormVO febrabanFormVO);
     }
 }

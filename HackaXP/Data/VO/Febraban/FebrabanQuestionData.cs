@@ -10,12 +10,29 @@ namespace HackaXP.Data.VO.Febraban
         public FebrabanQuestionData(string questionCode, int value)
         {
             QuestionCode = questionCode;
-            Options = new List<object>();
+            List<Option> options = new();
+            for (int i = 0; i < 5; i++)
+            {
+                options.Add(new Option(i, i + 1));
+            }
+            Options = options;
             Value = value;
         }
 
         public string QuestionCode { get; set; }
         public int Value { get; set; }
-        public List<object> Options { get; set; }
+        public List<Option> Options { get; set; }
+
+        public class Option
+        {
+            public Option(int cod, int id)
+            {
+                Cod = cod;
+                Id = id;
+            }
+
+            public int Cod { get; set; }
+            public int Id { get; set; }
+        }
     }
 }
