@@ -105,6 +105,7 @@ namespace HackaXP.Business.Implementation
             {
                 try
                 {
+                    Salary12Months = costumerData.Salary * 13;
                     foreach (Bank bank in costumerData.Banks)
                     {
                         HowManyBankAccounts++;
@@ -174,12 +175,7 @@ namespace HackaXP.Business.Implementation
 
             QuestionResultVO Question1()
             {
-                DateTime OneYearAgo = DateTime.Now.AddDays(-365).Date;
-
-                Salary12Months = costumerData.Salary * 13;
-
-                float percentualResult = (TotalExpenses / TotalIncomes);
-
+                float percentualResult = Math.Abs((TotalExpenses / TotalIncomes) - 1);
                 int translatedResult = (int)Math.Round(percentualResult * 5);
 
                 return new QuestionResultVO(translatedResult, percentualResult);
@@ -187,8 +183,6 @@ namespace HackaXP.Business.Implementation
 
             QuestionResultVO Question2()
             {
-                int translatedResult = 5;
-
                 float quocientMonthlyExpensesIncomes = (OperationsBills12Months.Expenses + OperationsPix12Months.Expenses) / (Salary12Months + OperationsPix12Months.Incomes);
                 float quocientInvestimentsBills = OperationsBills12Months.Expenses / (TotalInvestedFixedAssets + TotalSavingBalance + TotalInvestedLowRiskFunds);
                 float quocientCheckingBalanceCreditLines = OperationsCreditLine12Months.Expenses / TotalCheckingBalance;
@@ -197,29 +191,27 @@ namespace HackaXP.Business.Implementation
 
                 if (UsesInstallments)
                 {
-                    resultQuocient += 0.17f;
+                    resultQuocient += 0.15f;
                 }
-                translatedResult = (int)Math.Round(resultQuocient * 5);
+                resultQuocient = Math.Abs(resultQuocient - 1);
+                int translatedResult = (int)Math.Round(resultQuocient * 5);
 
                 return new QuestionResultVO(translatedResult, resultQuocient);
             }
 
             QuestionResultVO Question3()
             {
-                int translatedResult = 5;
-
-                float quocientInvestimentsSalary = (OperationsCreditLine12Months.TotalFutureExpense) / (TotalInvested + Salary12Months + TotalCheckingBalance);
-
-                translatedResult = (int)Math.Round(quocientInvestimentsSalary * 5);
+                float quocientInvestimentsSalary = Math.Abs((OperationsCreditLine12Months.TotalFutureExpense) / (TotalInvested + Salary12Months + TotalCheckingBalance) - 1);
+                int translatedResult = (int)Math.Round(quocientInvestimentsSalary * 5);
 
                 return new QuestionResultVO(translatedResult, quocientInvestimentsSalary);
             }
 
             QuestionResultVO Question4()
             {
-                float quocientInvestimentsSalary = 1;
+                float quocientInvestimentsSalary = 0;
 
-                if (TotalInvested > 0) quocientInvestimentsSalary = (OperationsCreditLine12Months.TotalFutureExpense) / (Salary12Months + TotalCheckingBalance);
+                if (TotalInvested > 0) quocientInvestimentsSalary = Math.Abs((OperationsCreditLine12Months.TotalFutureExpense) / (Salary12Months + TotalCheckingBalance) - 1);
 
                 int translatedResult = (int)Math.Round(quocientInvestimentsSalary * 5);
 
@@ -237,13 +229,12 @@ namespace HackaXP.Business.Implementation
             QuestionResultVO Question6()
             {
                 int translatedResult = 1;
-                float quocientResult = 0;
                 if (AverageSuitability > 20)
                 {
                     int quo1 = HaveStocks ? 1 : 0;
                     int quo2 = HaveFunds ? 1 : 0;
                     int quo3 = HaveAnyFixedAsset ? 1 : 0;
-                    quocientResult = ((quo1 * 3 + quo2 * 3 + quo3 * 2) / 8);
+                    float quocientResult = ((quo1 * 3 + quo2 * 3 + quo3 * 2) / 8);
 
                     translatedResult = (int)Math.Round(quocientResult * 5);
                 }
@@ -253,7 +244,7 @@ namespace HackaXP.Business.Implementation
 
             QuestionResultVO Question7()
             {
-                float quocientResult = 0.11f;
+                float quocientResult = 0.2f;
                 if (AverageSuitability > 20)
                 {
                     int quo1 = HaveStocks ? 1 : 0;
@@ -263,7 +254,7 @@ namespace HackaXP.Business.Implementation
                     quocientResult += AverageSuitability / 500;
                     quocientResult += HowManyBankAccounts / 20;
                 }
-                else if (UsesPix) quocientResult += 0.1f;
+                else if (UsesPix) quocientResult += 0.08f;
 
                 int translatedResult = (int)Math.Round(quocientResult * 5);
 
@@ -285,7 +276,6 @@ namespace HackaXP.Business.Implementation
                 {
                     questionsSections.Add(new FebrabanQuestionSection(actualQuestion.SectionId, new List<FebrabanQuestionData>()));
                 }
-
                 questionsSections.Last().Questions.Add(new FebrabanQuestionData(actualQuestion.QuestionCode, actualQuestion.TranslatedScore));
             }
 

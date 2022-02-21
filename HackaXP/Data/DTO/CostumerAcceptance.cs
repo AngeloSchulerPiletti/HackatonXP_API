@@ -13,7 +13,7 @@ namespace HackaXP.Data.DTO
             CostumerId = costumerId;
         }
 
-        public bool Acceptance { get; }
-        public long CostumerId { get; }
+        public bool Acceptance { get; set; }
+        public long CostumerId { get; set;  }
     }
 }
